@@ -3,10 +3,11 @@
 
 (in-package :paren6)
 
-(writePs "routes/index.jsx"
- ;ps
-  (defun *index ()
-    (who-ps-html (:div "hello!")))
-  (export-default *index))
- 
+(writeFile "/Volumes/EP_1TB/Development/remix-lisp-test/js/remix/app/routes/index.jsx" 
+ (special-formatted
+   (ps
+    (defun *index ()
+      (who-ps-html (:button :on-click (:jsx (=> () (alert "Hello!!!") (nil))) 
+                    (:jsx (+ "Click " "me!")))))
+    (export-default *index))))
 
