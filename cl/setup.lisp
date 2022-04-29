@@ -25,6 +25,9 @@
     (unless *parenscript-stream*
       (get-output-stream-string *psw-stream*))))
 
+(defun formatted-jsx (body)
+  (format nil "{~A}" (apply #'pse* body)))
+
 (defun process-html-forms-cl-who (forms)
   (let ((r ()))
     (labels ((process-form (form)
@@ -33,7 +36,7 @@
                      ; jsx
                      ((and (consp form) (eq (car form) :jsx))
                       (let ((body (cdr form)))
-                        (push (format nil "{~A}" (apply #'pse* body)) r)))
+                        (push (formatted-jsx body) r)))
                      ((and (consp form) (keywordp (car form)))
                       (push (format nil "<~A" (symbol-to-js-string (car form))) r) ; use same casing as js var
                       (labels ((process-attributes (el-body)
@@ -41,7 +44,8 @@
                                    (if (keywordp (car el-body))
                                        (if (consp (cadr el-body))
                                            (progn
-                                            (push (format nil "{~A}" (apply #'pse* (cadr el-body))) r)
+                                            (push (format nil " ~A=" (symbol-to-js-string (car el-body))) r)
+                                            (push (formatted-jsx (cadr el-body)) r)
                                             (process-attributes (cddr el-body)))
                                            (progn
                                             (push (format nil " ~A=\""
@@ -76,16 +80,15 @@
                           :if-does-not-exist :create)
     (format stream content)))
 
-(defmacro writePs (name &rest body)
-  (let ((file (concatenate 'string 
-                         "/Volumes/EP_1TB/Development/remix-lisp-test/js/remix/app/" 
-                         name)))
-    `(writeFile ,file (ps ,@body))))
+(defun special-formatted (str)
+  (str:replace-all "\\n" "" 
+    (str:replace-all "\\'" "'" str)))
 
-
-(;writePs "routes/index.jsx"
- ps
-  (defun *index ()
-    (who-ps-html (:div :on-click (:jsx (=> () (1))) "this")))
-  (export-default *index))
+(writeFile "/Volumes/EP_1TB/Development/remix-lisp-test/js/remix/app/routes/index.jsx" 
+ (special-formatted
+   (ps
+    (defun *index ()
+      (who-ps-html (:button :on-click (:jsx (=> () (alert "Hello!!!"))) 
+                    (:jsx (+ "Click" "me!")))))
+    (export-default *index))))
 
