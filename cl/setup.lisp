@@ -1,6 +1,33 @@
 (ql:quickload :parenscript)
 (ql:quickload :paren6)
+
 (ql:quickload :str)
+(ql:quickload :cl21)
+(ql:quickload :arrows)
+
+
+(in-package :cl21-user)
+(defpackage workspace 
+  (:export #:write-file
+           #:special-formatted))
+
+(defpackage #:paren6
+  (:use #:cl
+        #:parenscript
+        #:alexandria)
+  (:shadowing-import-from #:parenscript #:switch)
+  (:export
+   #:export
+   #:export-default
+   #:import
+   #:list6
+   #:create6
+   #:=>
+   #:defclass6
+   #:defconstant6
+   #:super
+   #:import-into
+   #:for-of))
 
 ;; jsx
 (in-package :parenscript)
@@ -67,13 +94,9 @@
       (concat-constant-strings (reverse r)))))
 
 
-
-;; async
-(in-package :paren6)
-(load "/Volumes/EP_1TB/Development/remix-lisp-test/cl/async.lisp")
-
+(in-package :workspace)
 ;; write to file
-(defun writeFile (name content)
+(defun write-file (name content)
   (with-open-file (stream name
                           :direction :output
                           :if-exists :supersede
@@ -84,11 +107,13 @@
   (str:replace-all "\\n" "" 
     (str:replace-all "\\'" "'" str)))
 
-(writeFile "/Volumes/EP_1TB/Development/remix-lisp-test/js/remix/app/routes/index.jsx" 
- (special-formatted
-   (ps
-    (defun *index ()
-      (who-ps-html (:button :on-click (:jsx (=> () (alert "Hello!!!"))) 
-                    (:jsx (+ "Click" "me!")))))
-    (export-default *index))))
+
+(in-package :paren6)
+;; async
+(load "/Volumes/EP_1TB/Development/remix-lisp-test/cl/async.lisp")
+           
+;; arrows
+(ps:import-macros-from-lisp
+  '->
+  '->>)
 
