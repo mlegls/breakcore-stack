@@ -1,8 +1,7 @@
 ;; async await
 (ps::defprinter ps-js::await (x)
-  (ps::psw (string-downcase "(await "))
-  (ps::print-op-argument 'ps-js::await x)
-  (ps::psw ")"))
+  (ps::psw (string-downcase "await "))
+  (ps::print-op-argument 'ps-js::await x))
 
 (ps::define-trivial-special-ops
     await ps-js::await)
@@ -20,14 +19,10 @@
 (ps::define-expression-operator async-lambda (lambda-list &rest body)
   (multiple-value-bind (effective-args effective-body)
       (ps::parse-extended-function lambda-list body)
-    `(ps-js::async-lambda
-      ,effective-args
-      ,(let ((ps::*function-block-names* ()))))
-   (ps::compile-function-body effective-args effective-body)))
+    `(ps-js::async-lambda ,effective-args
+       ,(let ((ps::*function-block-names* ()))
+          (ps::compile-function-body effective-args effective-body)))))
 
 (ps::defprinter ps-js::async-lambda (args body-block)
-  (ps::parenthesize-at-toplevel
-   (lambda ()
-     (ps::psw "async ")
-     (ps::print-fun-def nil args body-block))))
-
+  (ps::psw "async ")
+  (ps::print-fun-def nil args body-block))
